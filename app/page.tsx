@@ -1,4 +1,5 @@
 import WorkflowBuilder from "@/components/workflow-builder"
+import "@/styles/workflow-builder.css"
 
 export default function Home() {
   return (
