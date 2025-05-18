@@ -4,9 +4,11 @@ const nextConfig = {
   transpilePackages: ["reactflow"],
   webpack: (config) => {
     // This is needed for reactflow to work properly
+    // Using path-based resolution instead of require.resolve
     config.resolve.alias = {
       ...config.resolve.alias,
-      'reactflow': require.resolve('reactflow'),
+      // Don't use require.resolve in ESM
+      'reactflow': 'reactflow',
     };
     return config;
   },
