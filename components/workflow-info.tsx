@@ -34,24 +34,24 @@ export default function WorkflowInfo({ nodes, edges }: WorkflowInfoProps) {
 
   if (nodes.length === 0) {
     return (
-      <Card>
-        <CardHeader className="pb-2">
+      <Card className="w-64">
+        <CardHeader className="py-2 px-3">
           <CardTitle className="text-sm">Workflow Info</CardTitle>
         </CardHeader>
-        <CardContent className="text-xs text-gray-500">
+        <CardContent className="py-2 px-3 text-xs text-gray-500">
           <p>No nodes in workflow yet.</p>
-          <p className="mt-2">Drag nodes from the library to get started.</p>
+          <p className="mt-1">Drag nodes from the library to get started.</p>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
+    <Card className="w-64">
+      <CardHeader className="py-2 px-3">
         <CardTitle className="text-sm">Workflow Info</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="py-2 px-3 space-y-2">
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div>Nodes:</div>
           <div className="font-medium">{stats.totalNodes}</div>

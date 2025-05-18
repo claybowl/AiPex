@@ -89,6 +89,7 @@ import type { WorkflowNode } from "@/lib/types"
 import WorkflowInfo from "./workflow-info"
 import ExecuteDialog from "./execute-dialog"
 import { useSampleWorkflow } from "./sample-workflow"
+import SaveWorkflowDialog from "./save-workflow-dialog"
 
 // Import workflow execution engine
 import { abortWorkflowExecution, type ExecutionContext } from "@/lib/workflow-executor"
@@ -96,6 +97,8 @@ import { ensureExecutorsRegistered } from "@/lib/node-executors"
 
 // Import API key dialog
 import ApiKeyDialog from "./api-key-dialog"
+import { useSearchParams } from "next/navigation"
+import { getWorkflow } from "@/lib/api"
 
 const nodeTypes: NodeTypes = {
   // Legacy nodes
@@ -260,9 +263,83 @@ export default function WorkflowBuilder() {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({
     OPENAI_API_KEY: "",
   })
+  const [saveWorkflowDialogOpen, setSaveWorkflowDialogOpen] = useState(false)
+  const searchParams = useSearchParams()
+  const workflowId = searchParams.get("id") ? Number.parseInt(searchParams.get("id")!) : undefined
+
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false)
+  const [currentWorkflowId, setCurrentWorkflowId] = useState<number | undefined>(workflowId)
+  const [currentWorkflowName, setCurrentWorkflowName] = useState("")
+  const [currentWorkflowDescription, setCurrentWorkflowDescription] = useState("")
+
+  // Load workflow from database if ID is provided
+  useEffect(() => {
+    const loadWorkflowFromDb = async () => {
+      if (workflowId) {
+        try {
+          const workflow = await getWorkflow(workflowId)
+          if (workflow) {
+            setNodes(workflow.nodes)
+            setEdges(workflow.edges)
+            setCurrentWorkflowId(workflowId)
+            setCurrentWorkflowName(workflow.name || "")
+            setCurrentWorkflowDescription(workflow.description || "")
+
+            toast({
+              title: "Workflow loaded",
+              description: `Loaded workflow "${workflow.name || "Untitled"}" from database`,
+            })
+          }
+        } catch (error) {
+          console.error("Error loading workflow from database:", error)
+          toast({
+            title: "Error loading workflow",
+            description: "Failed to load workflow from database",
+            variant: "destructive",
+          })
+        }
+      }
+    }
+
+    loadWorkflowFromDb()
+  }, [workflowId, setNodes, setEdges])
 
   // Get sample workflow
   const sampleWorkflow = useSampleWorkflow()
+
+  // Load workflow if workflowId is present
+  useEffect(() => {
+    const loadWorkflow = async () => {
+      if (workflowId) {
+        try {
+          const workflow = await getWorkflow(workflowId)
+          if (workflow) {
+            setNodes(workflow.nodes as any)
+            setEdges(workflow.edges as any)
+            toast({
+              title: "Workflow loaded",
+              description: "Your workflow has been loaded successfully",
+            })
+          } else {
+            toast({
+              title: "Workflow not found",
+              description: "No workflow found with the given ID",
+              variant: "destructive",
+            })
+          }
+        } catch (error) {
+          console.error("Error loading workflow:", error)
+          toast({
+            title: "Error loading workflow",
+            description: "Failed to load the workflow",
+            variant: "destructive",
+          })
+        }
+      }
+    }
+
+    loadWorkflow()
+  }, [workflowId])
 
   // Ensure all node executors are registered
   useEffect(() => {
@@ -412,34 +489,8 @@ export default function WorkflowBuilder() {
       return
     }
 
-    const workflow = {
-      nodes,
-      edges,
-    }
-
-    // Save to localStorage as before (as a backup)
-    const workflowString = JSON.stringify(workflow)
-    localStorage.setItem("workflow", workflowString)
-
-    // Create a Blob with the workflow data
-    const blob = new Blob([workflowString], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-
-    // Create a temporary link element to trigger the download
-    const link = document.createElement("a")
-    link.href = url
-    link.download = `ai-agent-workflow-${new Date().toISOString().slice(0, 10)}.json`
-    document.body.appendChild(link)
-    link.click()
-
-    // Clean up
-    URL.revokeObjectURL(url)
-    document.body.removeChild(link)
-
-    toast({
-      title: "Workflow saved",
-      description: "Your workflow has been saved as a JSON file",
-    })
+    // Open the save dialog
+    setSaveDialogOpen(true)
   }
 
   const loadWorkflow = () => {
@@ -525,6 +576,63 @@ export default function WorkflowBuilder() {
     toast({
       title: "Sample workflow loaded",
       description: "A sample AI workflow has been loaded",
+    })
+  }
+
+  // Add a simple workflow creation function that includes an input node
+  // Add this function after the loadSampleWorkflow function
+
+  const createSimpleChatWorkflow = () => {
+    // Create an input node
+    const inputNode = createNode({
+      type: "input",
+      position: { x: 100, y: 200 },
+      id: generateNodeId("input"),
+    })
+
+    // Create an LLM node
+    const llmNode = createNode({
+      type: "llm",
+      position: { x: 400, y: 200 },
+      id: generateNodeId("llm"),
+    })
+
+    // Update node data with custom values
+    inputNode.data = {
+      ...inputNode.data,
+      label: "Chat Input",
+      description: "Starting point for user queries",
+      inputType: "text",
+      samplePrompt: "Hello, how can I help you today?",
+    }
+
+    llmNode.data = {
+      ...llmNode.data,
+      label: "AI Response",
+      description: "Generate AI response",
+      modelName: "gpt-4o",
+      systemPrompt: "You are a helpful AI assistant.",
+      temperature: 0.7,
+    }
+
+    // Set the nodes
+    setNodes([inputNode, llmNode])
+
+    // Create an edge to connect the nodes
+    const newEdge = {
+      id: "input-to-llm",
+      source: inputNode.id,
+      sourceHandle: "default",
+      target: llmNode.id,
+      targetHandle: "variables",
+      type: "custom",
+    }
+
+    setEdges([newEdge])
+
+    toast({
+      title: "Simple chat workflow created",
+      description: "A basic input → LLM workflow has been created",
     })
   }
 
@@ -648,9 +756,6 @@ export default function WorkflowBuilder() {
         </div>
         <div className="flex-1 p-4 overflow-y-auto">
           <NodeLibrary />
-          <div className="mt-6">
-            <WorkflowInfo nodes={nodes} edges={edges} />
-          </div>
         </div>
       </div>
 
@@ -676,6 +781,9 @@ export default function WorkflowBuilder() {
               <Background />
               <Controls />
               <MiniMap />
+              <Panel position="top-left" className="bg-white bg-opacity-90 p-2 rounded shadow m-2">
+                <WorkflowInfo nodes={nodes} edges={edges} />
+              </Panel>
               <Panel position="top-right">
                 <div className="flex gap-2">
                   <Button onClick={saveWorkflow} size="sm" variant="outline">
@@ -692,6 +800,9 @@ export default function WorkflowBuilder() {
                   <Button onClick={loadSampleWorkflow} size="sm" variant="outline">
                     <BookTemplate className="h-4 w-4 mr-2" />
                     Sample
+                  </Button>
+                  <Button onClick={createSimpleChatWorkflow} size="sm" variant="outline" className="text-xs">
+                    Create Chat Flow
                   </Button>
                   {selectedNode && (
                     <Button onClick={handleDeleteSelected} size="sm" variant="outline" className="bg-red-50">
@@ -748,6 +859,20 @@ export default function WorkflowBuilder() {
         onOpenChange={setApiKeyDialogOpen}
         onSave={handleApiKeySave}
         initialKeys={apiKeys}
+      />
+      <SaveWorkflowDialog
+        open={saveWorkflowDialogOpen}
+        onOpenChange={setSaveWorkflowDialogOpen}
+        nodes={nodes}
+        edges={edges}
+      />
+      <SaveWorkflowDialog
+        open={saveDialogOpen}
+        onOpenChange={setSaveDialogOpen}
+        workflow={{ nodes, edges }}
+        currentWorkflowId={currentWorkflowId}
+        currentWorkflowName={currentWorkflowName}
+        currentWorkflowDescription={currentWorkflowDescription}
       />
     </div>
   )
