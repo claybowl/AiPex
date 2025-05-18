@@ -1,20 +1,80 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { ArrowRight, FileText, FileLineChartIcon as FlowChart, List } from "lucide-react"
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-      <h1 className="text-4xl font-bold mb-6">AI Workflow Builder</h1>
-      <p className="text-xl mb-8 max-w-2xl">
-        Build, save, and execute AI agent workflows with a visual drag-and-drop interface.
-      </p>
-      <div className="flex gap-4">
-        <Button asChild size="lg">
-          <Link href="/builder">Create New Workflow</Link>
-        </Button>
-        <Button asChild size="lg" variant="outline">
-          <Link href="/workflows">View My Workflows</Link>
-        </Button>
+    <div className="container mx-auto py-12">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-4">AI Workflow Builder</h1>
+        <p className="text-xl text-gray-600">Build, test, and deploy AI workflows with a visual interface</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <FlowChart className="mr-2 h-5 w-5" />
+              Workflow Builder
+            </CardTitle>
+            <CardDescription>Create and edit AI workflows visually</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600">
+              Drag and drop nodes to create complex AI workflows. Connect LLMs, tools, and data sources.
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button asChild className="w-full">
+              <Link href="/builder">
+                Open Builder <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <List className="mr-2 h-5 w-5" />
+              Saved Workflows
+            </CardTitle>
+            <CardDescription>View and manage your saved workflows</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600">Access your saved workflows, run them, share them, or make modifications.</p>
+          </CardContent>
+          <CardFooter>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/workflows">
+                View Workflows <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <FileText className="mr-2 h-5 w-5" />
+              File Operations
+            </CardTitle>
+            <CardDescription>Manage files used in your workflows</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600">Upload, view, and manage files that are used in your AI workflows.</p>
+          </CardContent>
+          <CardFooter>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/files">
+                Manage Files <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   )

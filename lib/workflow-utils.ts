@@ -151,6 +151,61 @@ export const createNode = ({
           },
         },
       }
+    case "file-upload":
+      return {
+        ...baseNode,
+        data: {
+          ...baseNode.data,
+          acceptedFileTypes: "image/*,application/pdf,text/plain,text/csv,application/json",
+          maxFileSize: 50 * 1024 * 1024, // 50MB
+          inputs: ["trigger"],
+          outputs: ["file", "error"],
+          parameters: {
+            acceptedFileTypes: {
+              type: "string",
+              default: "image/*,application/pdf,text/plain,text/csv,application/json",
+            },
+            maxFileSize: { type: "number", default: 50 * 1024 * 1024 },
+          },
+        },
+      }
+
+    case "file-download":
+      return {
+        ...baseNode,
+        data: {
+          ...baseNode.data,
+          fileName: "",
+          inputs: ["fileInfo"],
+          outputs: ["file", "error"],
+          parameters: {
+            fileName: { type: "string", default: "" },
+          },
+        },
+      }
+
+    case "file-processor":
+      return {
+        ...baseNode,
+        data: {
+          ...baseNode.data,
+          processorType: "text",
+          options: { trim: true, splitLines: false },
+          inputs: ["file"],
+          outputs: ["result", "error"],
+          parameters: {
+            processorType: {
+              type: "string",
+              default: "text",
+              options: ["text", "csv", "json", "image"],
+            },
+            options: {
+              type: "object",
+              default: { trim: true, splitLines: false },
+            },
+          },
+        },
+      }
 
     // Adapters
     case "json-converter":
@@ -876,12 +931,18 @@ const getDefaultLabel = (type: string): string => {
       return "Database Pull"
     case "webhook":
       return "Webhook Listener"
+    case "file-upload":
+      return "File Upload"
+    case "file-download":
+      return "File Download"
 
     // Adapters
     case "json-converter":
       return "JSON-to-Tabular"
     case "text-cleaning":
       return "Text Cleaning"
+    case "file-processor":
+      return "File Processor"
 
     // Data Enrichment & Preprocessing
     case "language-detector":
@@ -993,12 +1054,18 @@ const getDefaultDescription = (type: string): string => {
       return "Query data from PostgreSQL"
     case "webhook":
       return "Listen for incoming webhooks"
+    case "file-upload":
+      return "Upload a file"
+    case "file-download":
+      return "Download a file"
 
     // Adapters
     case "json-converter":
       return "Convert JSON to tabular format"
     case "text-cleaning":
       return "Clean and tokenize text data"
+    case "file-processor":
+      return "Process file content"
 
     // Data Enrichment & Preprocessing
     case "language-detector":

@@ -8,9 +8,10 @@ const sql = neon(process.env.DATABASE_URL!)
 export const db = drizzle(sql)
 
 // Helper function for direct SQL queries when needed
-export async function query(sql: string, params: any[] = []) {
+export async function query(sqlQuery: string, params: any[] = []) {
   try {
-    return await db.execute(sql, params)
+    // Use sql.query for conventional function calls with placeholders
+    return await sql.query(sqlQuery, params)
   } catch (error) {
     console.error("Database query error:", error)
     throw error

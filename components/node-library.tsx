@@ -38,6 +38,7 @@ import {
   Upload,
   CheckCircle,
   Bell,
+  Download,
 } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
@@ -321,6 +322,30 @@ const nodeCategories = [
         label: "Logging & Monitoring",
         description: "Log events and metrics",
         icon: <Gauge className="h-4 w-4 mr-2" />,
+      },
+    ],
+  },
+  {
+    id: "files",
+    name: "File Operations",
+    nodes: [
+      {
+        type: "file-upload",
+        label: "File Upload",
+        description: "Upload files to storage",
+        icon: <Upload className="h-4 w-4 mr-2" />,
+      },
+      {
+        type: "file-download",
+        label: "File Download",
+        description: "Download files from storage",
+        icon: <Download className="h-4 w-4 mr-2" />,
+      },
+      {
+        type: "file-processor",
+        label: "File Processor",
+        description: "Process file contents",
+        icon: <FileText className="h-4 w-4 mr-2" />,
       },
     ],
   },

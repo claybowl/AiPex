@@ -84,6 +84,11 @@ import { CacheNode } from "./nodes/cache-node"
 import { ErrorNotifierNode } from "./nodes/error-notifier-node"
 import { DataValidatorNode } from "./nodes/data-validator-node"
 
+// New nodes - File Operations
+import { FileUploadNode } from "./nodes/file-upload-node"
+import { FileDownloadNode } from "./nodes/file-download-node"
+import { FileProcessorNode } from "./nodes/file-processor-node"
+
 import { generateNodeId, createNode } from "@/lib/workflow-utils"
 import type { WorkflowNode } from "@/lib/types"
 import WorkflowInfo from "./workflow-info"
@@ -167,6 +172,11 @@ const nodeTypes: NodeTypes = {
   cache: CacheNode,
   "error-notifier": ErrorNotifierNode,
   "data-validator": DataValidatorNode,
+
+  // File Operations
+  "file-upload": FileUploadNode,
+  "file-download": FileDownloadNode,
+  "file-processor": FileProcessorNode,
 }
 
 const edgeTypes: EdgeTypes = {

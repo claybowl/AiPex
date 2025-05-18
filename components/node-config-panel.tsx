@@ -359,6 +359,98 @@ export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeC
           </>
         )
 
+      // File Operations Nodes
+      case "file-upload":
+        return (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="acceptedFileTypes">Accepted File Types</Label>
+              <Input
+                id="acceptedFileTypes"
+                value={localData.acceptedFileTypes || ""}
+                onChange={(e) => handleChange("acceptedFileTypes", e.target.value)}
+                placeholder="image/*,application/pdf,text/plain"
+              />
+              <p className="text-xs text-gray-500">Comma-separated list of MIME types or file extensions</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="maxFileSize">Max File Size (bytes)</Label>
+              <Input
+                id="maxFileSize"
+                type="number"
+                min="1"
+                value={localData.maxFileSize || 52428800}
+                onChange={(e) => handleChange("maxFileSize", Number.parseInt(e.target.value))}
+              />
+              <p className="text-xs text-gray-500">Maximum file size in bytes (default: 50MB = 52428800 bytes)</p>
+            </div>
+          </>
+        )
+
+      case "file-download":
+        return (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="fileName">Default File Name</Label>
+              <Input
+                id="fileName"
+                value={localData.fileName || ""}
+                onChange={(e) => handleChange("fileName", e.target.value)}
+                placeholder="downloaded-file.txt"
+              />
+              <p className="text-xs text-gray-500">Optional default file name (used if not provided by the source)</p>
+            </div>
+          </>
+        )
+
+      case "file-processor":
+        return (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="processorType">Processor Type</Label>
+              <Select
+                value={localData.processorType || "text"}
+                onValueChange={(value) => handleChange("processorType", value)}
+              >
+                <SelectTrigger id="processorType">
+                  <SelectValue placeholder="Select processor type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text">Text</SelectItem>
+                  <SelectItem value="csv">CSV</SelectItem>
+                  <SelectItem value="json">JSON</SelectItem>
+                  <SelectItem value="image">Image</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="options">Processing Options</Label>
+              <Textarea
+                id="options"
+                value={
+                  typeof localData.options === "object"
+                    ? JSON.stringify(localData.options, null, 2)
+                    : localData.options || "{}"
+                }
+                onChange={(e) => {
+                  try {
+                    const parsedOptions = JSON.parse(e.target.value)
+                    handleChange("options", parsedOptions)
+                  } catch (error) {
+                    // If not valid JSON, store as string
+                    handleChange("options", e.target.value)
+                  }
+                }}
+                placeholder='{"trim": true, "splitLines": false}'
+                className="font-mono text-sm h-32"
+              />
+              <p className="text-xs text-gray-500">JSON object with processing options</p>
+            </div>
+          </>
+        )
+
       default:
         return null
     }

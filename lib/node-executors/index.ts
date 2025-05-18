@@ -3,6 +3,9 @@ import "./rest-api-executor"
 import "./embedding-executor"
 import "./llm-executor"
 import "./input-executor"
+import "./file-upload-executor"
+import "./file-download-executor"
+import "./file-processor-executor"
 
 // Add more imports for other node executors as they are implemented
 

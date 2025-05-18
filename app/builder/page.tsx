@@ -1,5 +1,5 @@
-import WorkflowBuilderWrapper from "@/components/workflow-builder-wrapper"
+import PreviewWorkflowBuilder from "@/components/preview-workflow-builder"
 
 export default function BuilderPage() {
-  return <WorkflowBuilderWrapper />
+  return <PreviewWorkflowBuilder />
 }
