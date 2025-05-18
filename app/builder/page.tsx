@@ -1,5 +1,5 @@
-import PreviewWorkflowBuilder from "@/components/preview-workflow-builder"
+import BuilderClient from "@/components/builder-client"
 
 export default function BuilderPage() {
-  return <PreviewWorkflowBuilder />
+  return <BuilderClient />
 }
