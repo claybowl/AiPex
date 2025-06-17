@@ -1,176 +1,236 @@
 "use client"
 
 import { useState } from "react"
+import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { X, Settings, Code, Database, MessageSquare } from "lucide-react"
+import type { WorkflowNode } from "@/lib/types"
 
 interface NodeConfigPanelProps {
-  selectedNode: any
-  onUpdateNode: (nodeId: string, updates: any) => void
+  node: WorkflowNode
+  updateNodeData: (nodeId: string, data: any) => void
   onClose: () => void
 }
 
-export function NodeConfigPanel({ selectedNode, onUpdateNode, onClose }: NodeConfigPanelProps) {
-  const [config, setConfig] = useState(selectedNode?.data || {})
+export default function NodeConfigPanel({ node, updateNodeData, onClose }: NodeConfigPanelProps) {
+  const [localData, setLocalData] = useState({ ...node.data })
 
-  if (!selectedNode) return null
-
-  const handleSave = () => {
-    onUpdateNode(selectedNode.id, config)
-    onClose()
+  const handleChange = (key: string, value: any) => {
+    setLocalData((prev) => ({
+      ...prev,
+      [key]: value,
+    }))
+    updateNodeData(node.id, { [key]: value })
   }
 
-  const handleConfigChange = (key: string, value: any) => {
-    setConfig((prev) => ({ ...prev, [key]: value }))
-  }
+  const renderInputFields = () => {
+    switch (node.type) {
+      case "input":
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="inputType" className="text-foreground">
+                Input Type
+              </Label>
+              <Select value={localData.inputType || "text"} onValueChange={(value) => handleChange("inputType", value)}>
+                <SelectTrigger id="inputType" className="bg-background border-border text-foreground">
+                  <SelectValue placeholder="Select input type" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="text">Text</SelectItem>
+                  <SelectItem value="voice">Voice</SelectItem>
+                  <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="multimodal">Multimodal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-  const getNodeIcon = (type: string) => {
-    switch (type) {
+            <div className="space-y-2">
+              <Label htmlFor="samplePrompt" className="text-foreground">
+                Sample Prompt
+              </Label>
+              <Textarea
+                id="samplePrompt"
+                value={localData.samplePrompt || ""}
+                onChange={(e) => handleChange("samplePrompt", e.target.value)}
+                placeholder="What can you help me with today?"
+                className="bg-background border-border text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+          </div>
+        )
+
+      case "output":
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="outputFormat" className="text-foreground">
+                Output Format
+              </Label>
+              <Select
+                value={localData.outputFormat || "text"}
+                onValueChange={(value) => handleChange("outputFormat", value)}
+              >
+                <SelectTrigger id="outputFormat" className="bg-background border-border text-foreground">
+                  <SelectValue placeholder="Select format" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="text">Text</SelectItem>
+                  <SelectItem value="json">JSON</SelectItem>
+                  <SelectItem value="markdown">Markdown</SelectItem>
+                  <SelectItem value="html">HTML</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center space-x-2 py-2">
+              <Switch
+                id="streaming"
+                checked={localData.streaming !== undefined ? localData.streaming : true}
+                onCheckedChange={(checked) => handleChange("streaming", checked)}
+              />
+              <Label htmlFor="streaming" className="text-foreground">
+                Enable Streaming
+              </Label>
+            </div>
+          </div>
+        )
+
       case "llm":
-        return <MessageSquare className="w-4 h-4" />
-      case "code":
-        return <Code className="w-4 h-4" />
-      case "database":
-        return <Database className="w-4 h-4" />
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="modelName" className="text-foreground">
+                Model Name
+              </Label>
+              <Select
+                value={localData.modelName || "gpt-4o"}
+                onValueChange={(value) => handleChange("modelName", value)}
+              >
+                <SelectTrigger id="modelName" className="bg-background border-border text-foreground">
+                  <SelectValue placeholder="Select model" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="gpt-4o">GPT-4o</SelectItem>
+                  <SelectItem value="gpt-4-turbo">GPT-4 Turbo</SelectItem>
+                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                  <SelectItem value="claude-3-opus">Claude 3 Opus</SelectItem>
+                  <SelectItem value="claude-3-sonnet">Claude 3 Sonnet</SelectItem>
+                  <SelectItem value="llama-3-70b">Llama 3 70B</SelectItem>
+                  <SelectItem value="mistral-large">Mistral Large</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="temperature" className="text-foreground">
+                Temperature
+              </Label>
+              <Input
+                id="temperature"
+                type="number"
+                min="0"
+                max="2"
+                step="0.1"
+                value={localData.temperature || 0.7}
+                onChange={(e) => handleChange("temperature", Number.parseFloat(e.target.value))}
+                className="bg-background border-border text-foreground"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="maxTokens" className="text-foreground">
+                Max Tokens
+              </Label>
+              <Input
+                id="maxTokens"
+                type="number"
+                min="1"
+                value={localData.maxTokens || 1000}
+                onChange={(e) => handleChange("maxTokens", Number.parseInt(e.target.value))}
+                className="bg-background border-border text-foreground"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="systemPrompt" className="text-foreground">
+                System Prompt
+              </Label>
+              <Textarea
+                id="systemPrompt"
+                value={localData.systemPrompt || ""}
+                onChange={(e) => handleChange("systemPrompt", e.target.value)}
+                className="h-32 bg-background border-border text-foreground placeholder:text-muted-foreground"
+                placeholder="You are a helpful AI assistant."
+              />
+            </div>
+          </div>
+        )
+
       default:
-        return <Settings className="w-4 h-4" />
+        return (
+          <div className="p-4 bg-muted rounded-lg">
+            <p className="text-muted-foreground">Configure the {node.type} node settings here.</p>
+          </div>
+        )
     }
   }
 
   return (
-    <div className="fixed right-0 top-0 h-full w-80 bg-background border-l border-border shadow-lg z-50 overflow-y-auto">
-      <Card className="h-full rounded-none border-0">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <div className="flex items-center space-x-2">
-            {getNodeIcon(selectedNode.data?.type)}
-            <CardTitle className="text-lg">{selectedNode.data?.label || "Node Configuration"}</CardTitle>
-          </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
-          </Button>
-        </CardHeader>
+    <Card className="h-full flex flex-col bg-card border-border">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-lg font-semibold text-card-foreground">Configure {node.data.label}</CardTitle>
+        <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <X className="h-4 w-4" />
+        </Button>
+      </CardHeader>
 
-        <CardContent className="space-y-6">
-          {/* Basic Configuration */}
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="node-label">Node Label</Label>
-              <Input
-                id="node-label"
-                value={config.label || ""}
-                onChange={(e) => handleConfigChange("label", e.target.value)}
-                placeholder="Enter node label"
-              />
-            </div>
+      <CardContent className="space-y-4 flex-1 overflow-y-auto">
+        <div className="space-y-2">
+          <Label htmlFor="label" className="text-foreground">
+            Node Label
+          </Label>
+          <Input
+            id="label"
+            value={localData.label || ""}
+            onChange={(e) => handleChange("label", e.target.value)}
+            className="bg-background border-border text-foreground"
+          />
+        </div>
 
-            <div>
-              <Label htmlFor="node-description">Description</Label>
-              <Input
-                id="node-description"
-                value={config.description || ""}
-                onChange={(e) => handleConfigChange("description", e.target.value)}
-                placeholder="Enter description"
-              />
-            </div>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="description" className="text-foreground">
+            Description
+          </Label>
+          <Textarea
+            id="description"
+            value={localData.description || ""}
+            onChange={(e) => handleChange("description", e.target.value)}
+            placeholder="Describe what this node does"
+            className="bg-background border-border text-foreground placeholder:text-muted-foreground"
+          />
+        </div>
 
-          <Separator />
+        <div className="flex items-center space-x-2 py-2">
+          <Switch
+            id="required"
+            checked={localData.required || false}
+            onCheckedChange={(checked) => handleChange("required", checked)}
+          />
+          <Label htmlFor="required" className="text-foreground">
+            Required Node
+          </Label>
+        </div>
 
-          {/* Type-specific Configuration */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium">Node Settings</h3>
+        <div className="border-t border-border my-4"></div>
 
-            {selectedNode.data?.type === "llm" && (
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="model">Model</Label>
-                  <Input
-                    id="model"
-                    value={config.model || "gpt-3.5-turbo"}
-                    onChange={(e) => handleConfigChange("model", e.target.value)}
-                    placeholder="Model name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="temperature">Temperature</Label>
-                  <Input
-                    id="temperature"
-                    type="number"
-                    min="0"
-                    max="2"
-                    step="0.1"
-                    value={config.temperature || 0.7}
-                    onChange={(e) => handleConfigChange("temperature", Number.parseFloat(e.target.value))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="max-tokens">Max Tokens</Label>
-                  <Input
-                    id="max-tokens"
-                    type="number"
-                    value={config.maxTokens || 1000}
-                    onChange={(e) => handleConfigChange("maxTokens", Number.parseInt(e.target.value))}
-                  />
-                </div>
-              </div>
-            )}
-
-            {selectedNode.data?.type === "code" && (
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="language">Language</Label>
-                  <Input
-                    id="language"
-                    value={config.language || "javascript"}
-                    onChange={(e) => handleConfigChange("language", e.target.value)}
-                    placeholder="Programming language"
-                  />
-                </div>
-              </div>
-            )}
-
-            {selectedNode.data?.type === "database" && (
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="connection-string">Connection String</Label>
-                  <Input
-                    id="connection-string"
-                    value={config.connectionString || ""}
-                    onChange={(e) => handleConfigChange("connectionString", e.target.value)}
-                    placeholder="Database connection string"
-                    type="password"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="query">Query</Label>
-                  <Input
-                    id="query"
-                    value={config.query || ""}
-                    onChange={(e) => handleConfigChange("query", e.target.value)}
-                    placeholder="SQL query"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Separator />
-
-          {/* Actions */}
-          <div className="flex space-x-2">
-            <Button onClick={handleSave} className="flex-1">
-              Save Changes
-            </Button>
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        {renderInputFields()}
+      </CardContent>
+    </Card>
   )
 }
