@@ -6,6 +6,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Toaster } from "@/components/ui/toaster"
+import { User } from "lucide-react"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -23,41 +24,48 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <div className="flex flex-col min-h-screen bg-background text-foreground">
-            <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container mx-auto flex h-14 items-center px-4">
-                <div className="mr-4 flex">
-                  <Link href="/" className="flex items-center space-x-2">
-                    <span className="font-bold text-xl text-foreground">AI Workflow Builder</span>
-                  </Link>
-                </div>
-                <nav className="flex items-center space-x-4 lg:space-x-6 mx-6">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+            <header className="bg-white dark:bg-gray-800 shadow-sm py-3 px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-6">
+                <Link href="/" className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <div className="w-4 h-4 bg-white rounded-sm"></div>
+                  </div>
+                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">AI Workflow Builder</span>
+                </Link>
+                <nav className="hidden md:flex space-x-1">
                   <Link
                     href="/builder"
-                    className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground hover:text-foreground"
+                    className="px-3 py-1.5 rounded-md bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 transition-colors"
                   >
                     Builder
                   </Link>
                   <Link
                     href="/workflows"
-                    className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground hover:text-foreground"
+                    className="px-3 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 font-medium text-sm transition-colors"
                   >
                     My Workflows
                   </Link>
                   <Link
                     href="/files"
-                    className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground hover:text-foreground"
+                    className="px-3 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 font-medium text-sm transition-colors"
                   >
                     Files
                   </Link>
                 </nav>
-                <div className="ml-auto">
-                  <ThemeToggle />
+              </div>
+              <div className="flex items-center space-x-3">
+                <ThemeToggle />
+                <div className="hidden md:block">
+                  <button className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium text-sm flex items-center space-x-2 transition-colors">
+                    <User className="h-4 w-4" />
+                    <span>Sign In</span>
+                  </button>
                 </div>
               </div>
             </header>
-            <main className="flex-1 bg-background">{children}</main>
+            <main className="flex-1 bg-gray-50 dark:bg-gray-900">{children}</main>
           </div>
           <Toaster />
         </ThemeProvider>

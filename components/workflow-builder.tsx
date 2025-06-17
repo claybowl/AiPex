@@ -22,7 +22,7 @@ import ReactFlow, {
 import "reactflow/dist/style.css"
 import { toast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
-import { Save, Upload, Play, BookTemplate, StopCircle, Trash2 } from "lucide-react"
+import { Save, Upload, Play, BookTemplate, StopCircle, Trash2, Lightbulb } from "lucide-react"
 import NodeLibrary from "./node-library"
 import NodeConfigPanel from "./node-config-panel"
 import CustomEdge from "./custom-edge"
@@ -589,9 +589,6 @@ export default function WorkflowBuilder() {
     })
   }
 
-  // Add a simple workflow creation function that includes an input node
-  // Add this function after the loadSampleWorkflow function
-
   const createSimpleChatWorkflow = () => {
     // Create an input node
     const inputNode = createNode({
@@ -758,11 +755,11 @@ export default function WorkflowBuilder() {
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Node Library - Make independently scrollable */}
-      <div className="w-64 border-r border-gray-200 bg-gray-50 flex flex-col overflow-hidden">
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-lg font-semibold">Node Library</h2>
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Node Library Sidebar */}
+      <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Node Library</h2>
         </div>
         <div className="flex-1 p-4 overflow-y-auto">
           <NodeLibrary />
@@ -791,7 +788,30 @@ export default function WorkflowBuilder() {
               <Background />
               <Controls />
               <MiniMap />
-              <Panel position="top-left" className="bg-white bg-opacity-90 p-2 rounded shadow m-2">
+
+              {/* Empty state */}
+              {nodes.length === 0 && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="text-center max-w-md px-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-gray-400 dark:bg-gray-500 rounded-sm"></div>
+                    </div>
+                    <h3 className="text-xl font-medium mb-2 text-gray-900 dark:text-gray-100">
+                      Your workflow is empty
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">Drag nodes from the library to get started</p>
+                    <Button
+                      onClick={loadSampleWorkflow}
+                      className="pointer-events-auto bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Lightbulb className="h-4 w-4 mr-2" />
+                      Load Sample Workflow
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <Panel position="top-left" className="bg-white dark:bg-gray-800 bg-opacity-90 p-2 rounded shadow m-2">
                 <WorkflowInfo nodes={nodes} edges={edges} />
               </Panel>
               <Panel position="top-right">
@@ -835,7 +855,10 @@ export default function WorkflowBuilder() {
               </Panel>
 
               {/* Add a help panel with keyboard shortcuts */}
-              <Panel position="bottom-left" className="bg-white bg-opacity-80 p-2 rounded shadow text-xs">
+              <Panel
+                position="bottom-left"
+                className="bg-white dark:bg-gray-800 bg-opacity-80 p-2 rounded shadow text-xs"
+              >
                 <div>
                   <strong>Keyboard Shortcuts:</strong>
                   <div>Delete/Backspace: Delete selected node</div>
@@ -848,7 +871,7 @@ export default function WorkflowBuilder() {
       </div>
 
       {selectedNode && (
-        <div className="w-80 border-l border-gray-200 p-4 bg-gray-50 overflow-y-auto">
+        <div className="w-80 border-l border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800 overflow-y-auto">
           <NodeConfigPanel
             node={selectedNode as WorkflowNode}
             updateNodeData={updateNodeData}

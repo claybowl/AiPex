@@ -24,43 +24,28 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
   }
 
   .dark {
-    /* Deep blue/purple background palette */
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-    --card: 224 71% 6%;
-    --card-foreground: 213 31% 91%;
-    --popover: 224 71% 6%;
-    --popover-foreground: 213 31% 91%;
-
-    /* Baby blue primary with white text */
-    --primary: 200 100% 70%;
-    --primary-foreground: 0 0% 100%;
-
-    /* Dark purple secondary */
-    --secondary: 263 70% 12%;
-    --secondary-foreground: 200 100% 80%;
-
-    /* Muted dark grays */
-    --muted: 223 47% 11%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-
-    /* Orange accent */
-    --accent: 25 95% 53%;
-    --accent-foreground: 0 0% 100%;
-
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 223 47% 16%;
-    --input: 223 47% 16%;
-    --ring: 200 100% 70%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
     --chart-1: 25 95% 53%;
     --chart-2: 200 100% 70%;
     --chart-3: 263 70% 50%;
@@ -78,36 +63,140 @@
   }
 }
 
-/* Custom dark mode styles for workflow builder */
+/* Workflow Canvas Grid Pattern */
+.workflow-canvas {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.workflow-canvas.light {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+/* Node Category Transitions */
+.node-category {
+  transition: all 0.2s ease;
+}
+
+.node-category:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.node-item {
+  transition: all 0.2s ease;
+}
+
+.node-item:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  transform: translateX(2px);
+}
+
+/* ReactFlow Dark Theme Overrides */
 .dark .react-flow__node {
-  @apply bg-card border-border text-card-foreground;
+  @apply bg-gray-800 border-gray-700 text-gray-100;
 }
 
 .dark .react-flow__node.selected {
-  @apply ring-2 ring-primary;
+  @apply ring-2 ring-blue-500;
 }
 
 .dark .react-flow__edge-path {
-  stroke: hsl(var(--primary));
+  stroke: #3b82f6;
 }
 
 .dark .react-flow__handle {
-  @apply bg-primary border-primary;
+  @apply bg-blue-500 border-blue-500;
 }
 
 .dark .react-flow__controls {
-  @apply bg-card border-border;
+  @apply bg-gray-800 border-gray-700;
 }
 
 .dark .react-flow__controls button {
-  @apply bg-card text-card-foreground border-border hover:bg-accent hover:text-accent-foreground;
+  @apply bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700;
 }
 
 .dark .react-flow__minimap {
-  @apply bg-card border-border;
+  @apply bg-gray-800 border-gray-700;
 }
 
-/* Node-specific dark mode styles */
+/* Node Type Colors */
+.node-trigger {
+  @apply bg-green-100 dark:bg-green-900/20 border-green-300 dark:border-green-700;
+}
+
+.node-trigger .node-header {
+  @apply bg-green-500 text-white;
+}
+
+.node-connector {
+  @apply bg-blue-100 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700;
+}
+
+.node-connector .node-header {
+  @apply bg-blue-500 text-white;
+}
+
+.node-adapter {
+  @apply bg-purple-100 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700;
+}
+
+.node-adapter .node-header {
+  @apply bg-purple-500 text-white;
+}
+
+.node-processor {
+  @apply bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700;
+}
+
+.node-processor .node-header {
+  @apply bg-orange-500 text-white;
+}
+
+.node-model {
+  @apply bg-pink-100 dark:bg-pink-900/20 border-pink-300 dark:border-pink-700;
+}
+
+.node-model .node-header {
+  @apply bg-pink-500 text-white;
+}
+
+.node-integration {
+  @apply bg-cyan-100 dark:bg-cyan-900/20 border-cyan-300 dark:border-cyan-700;
+}
+
+.node-integration .node-header {
+  @apply bg-cyan-500 text-white;
+}
+
+.node-utility {
+  @apply bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600;
+}
+
+.node-utility .node-header {
+  @apply bg-gray-500 text-white;
+}
+
+/* Scrollbar Styling */
+.dark ::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.dark ::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded-full;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Custom dark mode styles for workflow builder */
 .dark .workflow-node {
   @apply bg-card border-border shadow-lg;
 }
@@ -267,23 +356,6 @@
 
 .dark td {
   @apply border-border;
-}
-
-/* Scrollbars */
-.dark ::-webkit-scrollbar {
-  @apply w-2;
-}
-
-.dark ::-webkit-scrollbar-track {
-  @apply bg-muted;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/50 rounded-full;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/70;
 }
 
 /* Loading spinner */
