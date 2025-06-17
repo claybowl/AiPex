@@ -3,10 +3,9 @@ import type { Config } from "tailwindcss"
 const config: Config = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "*.{js,ts,jsx,tsx,mdx}",
   ],
   prefix: "",
@@ -52,13 +51,6 @@ const config: Config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
-        },
-        // Custom workflow colors
-        workflow: {
-          "deep-blue": "#0f172a",
-          "dark-purple": "#1e1b4b",
-          "baby-blue": "#7dd3fc",
-          "bright-orange": "#fb923c",
         },
       },
       borderRadius: {
