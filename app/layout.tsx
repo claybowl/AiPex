@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import Link from "next/link"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -11,53 +10,27 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "AI Workflow Builder",
-  description: "Build and run AI agent workflows",
+  description: "Build and execute AI workflows with a visual interface",
     generator: 'v0.dev'
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <div className="flex flex-col min-h-screen bg-background text-foreground">
-            <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container mx-auto flex h-14 items-center px-4">
-                <div className="mr-4 flex">
-                  <Link href="/" className="flex items-center space-x-2">
-                    <span className="font-bold text-xl text-foreground">AI Workflow Builder</span>
-                  </Link>
-                </div>
-                <nav className="flex items-center space-x-4 lg:space-x-6 mx-6">
-                  <Link
-                    href="/builder"
-                    className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground hover:text-foreground"
-                  >
-                    Builder
-                  </Link>
-                  <Link
-                    href="/workflows"
-                    className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground hover:text-foreground"
-                  >
-                    My Workflows
-                  </Link>
-                  <Link
-                    href="/files"
-                    className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground hover:text-foreground"
-                  >
-                    Files
-                  </Link>
-                </nav>
-                <div className="ml-auto">
-                  <ThemeToggle />
-                </div>
+          <div className="min-h-screen bg-background">
+            <header className="border-b border-border bg-card">
+              <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+                <h1 className="text-xl font-bold text-foreground">AI Workflow Builder</h1>
+                <ThemeToggle />
               </div>
             </header>
-            <main className="flex-1 bg-background">{children}</main>
+            <main>{children}</main>
           </div>
           <Toaster />
         </ThemeProvider>
