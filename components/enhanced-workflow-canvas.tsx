@@ -3,13 +3,10 @@
 import type React from "react"
 import { useState, useCallback, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-// import { Card } from "@/components/ui/card" // Card is used within NodeComponent
+import { Card } from "@/components/ui/card"
 import { Save, Upload, Play, BookTemplate, StopCircle, Trash2, MousePointer2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import EnhancedNodeLibrary, { nodeCategories as allNodeCategories } from "./enhanced-node-library"
-import { NodeComponent } from "./nodes/node-component" // Import the refactored NodeComponent
-
-// Interfaces (WorkflowNode, WorkflowEdge) remain the same as your previous version
 
 interface WorkflowNode {
   id: string
@@ -30,6 +27,122 @@ interface WorkflowEdge {
   target: string
   sourceHandle?: string
   targetHandle?: string
+}
+
+const getNodeStyling = (colorString?: string) => {
+  if (!colorString) return { cardBg: "bg-slate-50 dark:bg-slate-700", border: "border-slate-500" }
+  const baseColorName = colorString.split("-")[1]
+  const cardBg = `bg-${baseColorName}-50 dark:bg-${baseColorName}-900/30`
+  const border = colorString.replace("bg-", "border-")
+  return { cardBg, border }
+}
+
+const NodeComponent = ({
+  node,
+  onSelect,
+  onMove,
+  isSelected,
+  onStartConnecting,
+}: {
+  node: WorkflowNode
+  onSelect: (node: WorkflowNode, event: React.MouseEvent) => void
+  onMove: (id: string, position: { x: number; y: number }) => void
+  isSelected: boolean
+  onStartConnecting: (nodeId: string, handleType: "source" | "target", event: React.MouseEvent) => void
+}) => {
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartRef = useRef({ x: 0, y: 0 })
+
+  const { cardBg, border: borderColorClass } = getNodeStyling(node.data.color)
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest(".connect-handle")) {
+      return
+    }
+    setIsDragging(true)
+    dragStartRef.current = {
+      x: e.clientX - node.position.x,
+      y: e.clientY - node.position.y,
+    }
+    onSelect(node, e)
+    e.stopPropagation()
+  }
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return
+      const newPosition = {
+        x: e.clientX - dragStartRef.current.x,
+        y: e.clientY - dragStartRef.current.y,
+      }
+      onMove(node.id, newPosition)
+    },
+    [isDragging, node.id, onMove],
+  )
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false)
+  }, [])
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove)
+      document.addEventListener("mouseup", handleMouseUp)
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove)
+        document.removeEventListener("mouseup", handleMouseUp)
+      }
+    }
+  }, [isDragging, handleMouseMove, handleMouseUp])
+
+  return (
+    <div
+      className={`absolute cursor-grab select-none transition-shadow duration-150 group ${
+        isSelected
+          ? "ring-2 ring-sky-500 dark:ring-sky-400 ring-offset-2 ring-offset-background dark:ring-offset-slate-900 z-10"
+          : "z-1"
+      } ${isDragging ? "cursor-grabbing shadow-2xl" : "hover:shadow-xl"}`}
+      style={{
+        left: node.position.x,
+        top: node.position.y,
+      }}
+      onMouseDown={handleMouseDown}
+    >
+      <Card
+        className={`w-48 rounded-lg shadow-md ${cardBg} border-l-4 ${borderColorClass} transition-all duration-150 group-hover:shadow-lg`}
+      >
+        <div className="p-3">
+          <div className="text-sm font-semibold text-foreground dark:text-slate-200 truncate" title={node.data.label}>
+            {node.data.label}
+          </div>
+          {node.data.description && (
+            <div
+              className="text-xs text-muted-foreground dark:text-slate-400 mt-1 line-clamp-2"
+              title={node.data.description}
+            >
+              {node.data.description}
+            </div>
+          )}
+        </div>
+        <div
+          className="connect-handle absolute -left-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-slate-300 dark:bg-slate-600 border-2 border-white dark:border-slate-800 cursor-crosshair hover:bg-sky-400 dark:hover:bg-sky-500 hover:scale-110 transition-all shadow-sm hover:shadow-md"
+          onMouseDown={(e) => {
+            e.stopPropagation()
+            onStartConnecting(node.id, "target", e)
+          }}
+          title="Input"
+        />
+        <div
+          className="connect-handle absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-slate-300 dark:bg-slate-600 border-2 border-white dark:border-slate-800 cursor-crosshair hover:bg-sky-400 dark:hover:bg-sky-500 hover:scale-110 transition-all shadow-sm hover:shadow-md"
+          onMouseDown={(e) => {
+            e.stopPropagation()
+            onStartConnecting(node.id, "source", e)
+          }}
+          title="Output"
+        />
+      </Card>
+    </div>
+  )
 }
 
 const NodeConfigPanel = ({
@@ -103,16 +216,15 @@ export default function EnhancedWorkflowCanvas() {
   const [isExecuting, setIsExecuting] = useState(false)
   const [connecting, setConnecting] = useState<{
     fromNodeId: string
-    fromHandleType: "source" | "target" // "source" for output, "target" for input
+    fromHandleType: "source" | "target"
     mousePosition: { x: number; y: number }
   } | null>(null)
   const [canvasOffset, setCanvasOffset] = useState({ x: 0, y: 0 })
   const canvasRef = useRef<HTMLDivElement>(null)
 
-  // Node dimensions - assuming w-48 is 192px, and typical height around 60-80px
   const NODE_WIDTH = 192
-  const NODE_APPROX_HALF_HEIGHT = 35 // Approximate half height for Y connection point
-  const HANDLE_OFFSET_X = 12 // How far the line starts from the node edge (center of a w-6 handle is 3px from edge)
+  const NODE_APPROX_HALF_HEIGHT = 35
+  const HANDLE_OFFSET_X = 12
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -216,6 +328,7 @@ export default function EnhancedWorkflowCanvas() {
     URL.revokeObjectURL(url)
     toast({ title: "Workflow Saved" })
   }, [nodes, edges])
+
   const loadWorkflow = useCallback(() => {
     const input = document.createElement("input")
     input.type = "file"
@@ -242,6 +355,7 @@ export default function EnhancedWorkflowCanvas() {
     }
     input.click()
   }, [])
+
   const createSampleWorkflow = useCallback(() => {
     const inputNodeInfo = allNodeCategories["data-io"]?.nodes.find((n) => n.type === "rest-api") || {
       type: "input",
@@ -273,6 +387,7 @@ export default function EnhancedWorkflowCanvas() {
     ])
     toast({ title: "Sample Workflow Created" })
   }, [])
+
   const executeWorkflow = useCallback(() => {
     if (nodes.length === 0) {
       toast({ title: "Nothing to execute", variant: "destructive" })
@@ -307,7 +422,6 @@ export default function EnhancedWorkflowCanvas() {
 
   const handleMouseMoveConnecting = useCallback(
     (event: MouseEvent) => {
-      // Global mouse move
       if (connecting) {
         setConnecting((prev) => (prev ? { ...prev, mousePosition: { x: event.clientX, y: event.clientY } } : null))
       }
@@ -316,7 +430,6 @@ export default function EnhancedWorkflowCanvas() {
   )
 
   const handleMouseUpConnecting = useCallback(() => {
-    // Global mouse up
     if (connecting) {
       const { fromNodeId, fromHandleType, mousePosition } = connecting
       const targetElement = document.elementFromPoint(mousePosition.x, mousePosition.y)
@@ -337,12 +450,12 @@ export default function EnhancedWorkflowCanvas() {
       }
       setConnecting(null)
     }
-  }, [connecting, edges]) // Added edges
+  }, [connecting, edges])
 
   useEffect(() => {
     if (connecting) {
       document.addEventListener("mousemove", handleMouseMoveConnecting)
-      document.addEventListener("mouseup", handleMouseUpConnecting) // Listen globally
+      document.addEventListener("mouseup", handleMouseUpConnecting)
       return () => {
         document.removeEventListener("mousemove", handleMouseMoveConnecting)
         document.removeEventListener("mouseup", handleMouseUpConnecting)
@@ -361,16 +474,14 @@ export default function EnhancedWorkflowCanvas() {
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [selectedNode, deleteSelectedNode])
 
-  // Function to calculate Bezier path
   const getEdgePath = (sourceNode: WorkflowNode, targetNode: WorkflowNode) => {
-    const sourceX = sourceNode.position.x + NODE_WIDTH - HANDLE_OFFSET_X // From right edge of source
+    const sourceX = sourceNode.position.x + NODE_WIDTH - HANDLE_OFFSET_X
     const sourceY = sourceNode.position.y + NODE_APPROX_HALF_HEIGHT
-    const targetX = targetNode.position.x + HANDLE_OFFSET_X // To left edge of target
+    const targetX = targetNode.position.x + HANDLE_OFFSET_X
     const targetY = targetNode.position.y + NODE_APPROX_HALF_HEIGHT
 
     const dx = Math.abs(sourceX - targetX)
-    // Make curve factor more pronounced for a more "flowing" look
-    const curveFactor = dx * 0.6 // Increased from 0.3 or 0.4
+    const curveFactor = dx * 0.6
 
     return `M ${sourceX} ${sourceY} C ${sourceX + curveFactor} ${sourceY}, ${targetX - curveFactor} ${targetY}, ${targetX} ${targetY}`
   }
@@ -392,7 +503,6 @@ export default function EnhancedWorkflowCanvas() {
     if (connecting.fromHandleType === "source") {
       return `M ${sourceX} ${sourceY} C ${sourceX + curveFactor} ${sourceY}, ${targetX - curveFactor} ${targetY}, ${targetX} ${targetY}`
     } else {
-      // Connecting from a target handle to a source (mouse)
       return `M ${targetX} ${targetY} C ${targetX + curveFactor} ${targetY}, ${sourceX - curveFactor} ${sourceY}, ${sourceX} ${sourceY}`
     }
   }
@@ -401,10 +511,7 @@ export default function EnhancedWorkflowCanvas() {
     <div className="flex h-full w-full bg-background dark:bg-slate-900">
       <EnhancedNodeLibrary onAddNodeByClick={addNode} />
       <div className="flex-1 flex flex-col relative">
-        {" "}
-        {/* Removed onMouseUp from here */}
         <div className="border-b border-border dark:border-slate-700 bg-card dark:bg-slate-800/50 p-3">
-          {/* Toolbar buttons ... same ... */}
           <div className="flex gap-2 items-center flex-wrap">
             <Button
               onClick={saveWorkflow}
@@ -457,7 +564,7 @@ export default function EnhancedWorkflowCanvas() {
         </div>
         <div
           ref={canvasRef}
-          className="flex-1 relative bg-slate-100 dark:bg-slate-800/30 overflow-auto" // Slightly different bg
+          className="flex-1 relative bg-slate-100 dark:bg-slate-800/30 overflow-auto"
           onClick={handleCanvasClick}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
@@ -465,29 +572,24 @@ export default function EnhancedWorkflowCanvas() {
           <svg width="100%" height="100%" className="absolute inset-0 pointer-events-none">
             <defs>
               <pattern id="grid-enhanced" width="24" height="24" patternUnits="userSpaceOnUse">
-                {" "}
-                {/* Slightly larger grid */}
-                <circle cx="1" cy="1" r="1" className="fill-slate-300 dark:fill-slate-700/60 opacity-50" />{" "}
-                {/* Softer grid dots */}
+                <circle cx="1" cy="1" r="1" className="fill-slate-300 dark:fill-slate-700/60 opacity-50" />
               </pattern>
               <marker
                 id="arrowhead-enhanced"
                 markerWidth="12"
-                markerHeight="9" // Slightly larger arrowhead
+                markerHeight="9"
                 refX="10"
-                refY="4.5" // Adjusted ref points for thicker line
+                refY="4.5"
                 orient="auto"
-                className="fill-slate-500 dark:fill-slate-400" // Arrowhead color
+                className="fill-slate-500 dark:fill-slate-400"
               >
-                <path d="M0,0 L12,4.5 L0,9 Z" /> {/* Simpler path for arrowhead */}
+                <path d="M0,0 L12,4.5 L0,9 Z" />
               </marker>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid-enhanced)" />
           </svg>
 
           <svg className="absolute inset-0 pointer-events-none w-full h-full" style={{ zIndex: 5 }}>
-            {" "}
-            {/* Edges on top of grid, below nodes */}
             {edges.map((edge) => {
               const sourceNode = nodes.find((n) => n.id === edge.source)
               const targetNode = nodes.find((n) => n.id === edge.target)
@@ -496,23 +598,22 @@ export default function EnhancedWorkflowCanvas() {
                 <path
                   key={edge.id}
                   d={getEdgePath(sourceNode, targetNode)}
-                  className="stroke-slate-400 dark:stroke-slate-500/80" // Softer edge color
-                  strokeWidth="3.5" // Thicker lines
+                  className="stroke-slate-400 dark:stroke-slate-500/80"
+                  strokeWidth="3.5"
                   fill="none"
                   markerEnd="url(#arrowhead-enhanced)"
-                  style={{ transition: "d 0.1s ease-out" }} // Smooth path changes
+                  style={{ transition: "d 0.1s ease-out" }}
                 />
               )
             })}
-            {/* Temporary connecting line - now curved! */}
             {connecting && (
               <path
                 d={getConnectingPath()}
                 className="stroke-sky-500 dark:stroke-sky-400"
-                strokeWidth="3.5" // Thicker
+                strokeWidth="3.5"
                 fill="none"
-                strokeDasharray="6 6" // Slightly larger dashes
-                markerEnd="url(#arrowhead-enhanced)" // Optional: show arrowhead on temp line
+                strokeDasharray="6 6"
+                markerEnd="url(#arrowhead-enhanced)"
               />
             )}
           </svg>
@@ -525,8 +626,6 @@ export default function EnhancedWorkflowCanvas() {
                 zIndex: node.selected || nodes.find((n) => n.id === connecting?.fromNodeId)?.id === node.id ? 25 : 20,
               }}
             >
-              {" "}
-              {/* Ensure connecting/selected node is on top */}
               <NodeComponent
                 node={node}
                 onSelect={selectNode}
