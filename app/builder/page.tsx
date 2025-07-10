@@ -11,8 +11,8 @@ const LoadingSpinner = () => (
   </div>
 )
 
-// Dynamically import the WorkflowBuilder component itself, which uses ReactFlow
-const WorkflowBuilder = dynamic(() => import("@/components/workflow-builder"), {
+// Dynamically import the SimpleWorkflowBuilder component itself, which uses ReactFlow
+const SimpleWorkflowBuilder = dynamic(() => import("@/components/simple-workflow-builder"), {
   ssr: false,
   loading: () => <LoadingSpinner />,
 })
@@ -21,7 +21,7 @@ export default function BuilderPage() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <div className="h-screen w-full">
-        <WorkflowBuilder />
+        <SimpleWorkflowBuilder />
       </div>
     </Suspense>
   )

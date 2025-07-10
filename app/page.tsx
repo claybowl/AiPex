@@ -9,7 +9,11 @@ export default function Home() {
   return (
     <div className="container mx-auto py-12">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">AI Workflow Builder</h1>
+        <h1 className="text-4xl font-bold mb-4">
+          <span className="text-gray-900 dark:text-gray-100">Curve</span>
+          <span className="bg-gradient-to-r from-teal-500 to-blue-600 bg-clip-text text-transparent">Ai</span>
+          <span className="text-gray-900 dark:text-gray-100 ml-2">AiPex Platform</span>
+        </h1>
         <p className="text-xl text-gray-600">Build, test, and deploy AI workflows with a visual interface</p>
       </div>
 

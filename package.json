@@ -1,5 +1,5 @@
 {
-  "name": "workflow-builder",
+  "name": "curveai-aipex-platform",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -59,6 +59,7 @@
     "nanoid": "latest",
     "next": "14.2.16",
     "next-themes": "latest",
+    "openai": "^5.8.4",
     "pg": "latest",
     "postgres": "latest",
     "react": "^18",

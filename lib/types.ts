@@ -1,5 +1,48 @@
 import type { Node } from "reactflow"
 
+// Simplified Node Types for Business Users
+export type SimpleNodeType = 
+  | "input" 
+  | "process" 
+  | "decision" 
+  | "action" 
+  | "output"
+
+// Simplified Node Data - Prompt-based Configuration
+export interface SimpleNodeData {
+  // Core identification
+  id: string
+  type: SimpleNodeType
+  label: string
+  
+  // Main configuration - natural language prompt
+  prompt: string
+  
+  // Business-friendly description
+  description?: string
+  
+  // Variables this node extracts/outputs
+  extractedVariables?: string[]
+  
+  // Visual styling
+  color?: string
+  icon?: string
+  
+  // Decision node specific
+  conditions?: {
+    condition: string
+    path: string
+  }[]
+  
+  // Cost and performance info
+  estimatedCost?: number
+  estimatedLatency?: number
+  
+  // AI-inferred technical parameters (hidden from user)
+  inferredParameters?: Record<string, any>
+}
+
+// Legacy NodeData interface (for backward compatibility)
 export interface NodeData {
   label: string
   description?: string
@@ -248,6 +291,33 @@ export interface NodeData {
 }
 
 export type WorkflowNode = Node<NodeData>
+export type SimpleWorkflowNode = Node<SimpleNodeData>
+
+// Execution Context for Chain-of-Prompting
+export interface ExecutionContext {
+  variables: Record<string, any>
+  previousOutputs: Record<string, any>
+  currentStep: number
+  totalSteps: number
+  metadata: {
+    startTime: number
+    currentTime: number
+    costs: { nodeId: string; cost: number }[]
+    errors: { nodeId: string; error: string }[]
+    OPENAI_API_KEY?: string
+  }
+}
+
+// Prompt Chain Result
+export interface PromptChainResult {
+  success: boolean
+  finalOutput: any
+  extractedVariables: Record<string, any>
+  executionPath: string[]
+  totalCost: number
+  totalTime: number
+  error?: string
+}
 
 export interface Workflow {
   nodes: WorkflowNode[]

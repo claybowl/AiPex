@@ -11,7 +11,7 @@ import { User } from "lucide-react"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "AI Workflow Builder",
+  title: "CurveAi AiPex Platform",
   description: "Build and run AI agent workflows",
     generator: 'v0.dev'
 }
@@ -29,10 +29,16 @@ export default function RootLayout({
             <header className="bg-white dark:bg-gray-800 shadow-sm py-3 px-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-6">
                 <Link href="/" className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <div className="w-4 h-4 bg-white rounded-sm"></div>
+                  <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                    <div className="w-4 h-4 bg-white rounded-sm transform rotate-12"></div>
                   </div>
-                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">AI Workflow Builder</span>
+                  <div className="flex items-center">
+                    <span className="text-xl font-bold">
+                      <span className="text-gray-800 dark:text-gray-100">Curve</span>
+                      <span className="bg-gradient-to-r from-teal-500 to-blue-600 bg-clip-text text-transparent">Ai</span>
+                    </span>
+                    <span className="text-xl font-bold text-gray-800 dark:text-gray-100 ml-2">AiPex Platform</span>
+                  </div>
                 </Link>
                 <nav className="hidden md:flex space-x-1">
                   <Link
