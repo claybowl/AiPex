@@ -130,7 +130,7 @@ importers:
         version: 2.1.1
       drizzle-orm:
         specifier: latest
-        version: 0.44.2(49c05ff0fe1006c6ccbe696b3a153cb3)
+        version: 0.44.2(6e3j6p2bdyrsjq4p4qyq4sgmda)
       expo-sqlite:
         specifier: latest
         version: 15.2.12(expo@53.0.11(@babel/core@7.27.4)(bufferutil@4.0.9)(react-native@0.80.0(@babel/core@7.27.4)(@types/react@18.0.0)(bufferutil@4.0.9)(react@18.0.0))(react@18.0.0))(react-native@0.80.0(@babel/core@7.27.4)(@types/react@18.0.0)(bufferutil@4.0.9)(react@18.0.0))(react@18.0.0)
@@ -158,6 +158,9 @@ importers:
       next-themes:
         specifier: latest
         version: 0.4.6(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
+      openai:
+        specifier: ^5.8.4
+        version: 5.9.0(ws@8.18.2(bufferutil@4.0.9))
       pg:
         specifier: latest
         version: 8.16.0
@@ -4402,7 +4405,6 @@ packages:
 
   libsql@0.5.13:
     resolution: {integrity: sha512-5Bwoa/CqzgkTwySgqHA5TsaUDRrdLIbdM4egdPcaAnqO3aC+qAgS6BwdzuZwARA5digXwiskogZ8H7Yy4XfdOg==}
-    cpu: [x64, arm64, wasm32, arm]
     os: [darwin, linux, win32]
 
   lighthouse-logger@1.4.2:
@@ -4920,6 +4922,18 @@ packages:
   open@8.4.2:
     resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
     engines: {node: '>=12'}
+
+  openai@5.9.0:
+    resolution: {integrity: sha512-cmLC0pfqLLhBGxE4aZPyRPjydgYCncppV2ClQkKmW79hNjCvmzkfhz8rN5/YVDmjVQlFV+UsF1JIuNjNgeagyQ==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -10160,7 +10174,7 @@ snapshots:
 
   dotenv@16.4.7: {}
 
-  drizzle-orm@0.44.2(49c05ff0fe1006c6ccbe696b3a153cb3):
+  drizzle-orm@0.44.2(6e3j6p2bdyrsjq4p4qyq4sgmda):
     optionalDependencies:
       '@aws-sdk/client-rds-data': 3.830.0
       '@cloudflare/workers-types': 4.20250617.0
@@ -12007,6 +12021,10 @@ snapshots:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
+
+  openai@5.9.0(ws@8.18.2(bufferutil@4.0.9)):
+    optionalDependencies:
+      ws: 8.18.2(bufferutil@4.0.9)
 
   optionator@0.9.4:
     dependencies:
